@@ -1,4 +1,4 @@
-import os
+            import os
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (
     Application,
@@ -49,6 +49,7 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
             [InlineKeyboardButton("🇬🇧 Иностранный язык", callback_data="foreign")],
             [InlineKeyboardButton("⬅️ Назад", callback_data="menu")],
         ]
+
         await query.edit_message_text(
             "🎓 НМТ\n\nВыбери предмет:",
             reply_markup=InlineKeyboardMarkup(keyboard),
@@ -117,4 +118,58 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     elif query.data == "language":
         keyboard = [
-            [InlineKeyboardButton
+            [InlineKeyboardButton("🇺🇦 Українська", callback_data="lang_ua")],
+            [InlineKeyboardButton("🇷🇺 Русский", callback_data="lang_ru")],
+            [InlineKeyboardButton("🇬🇧 English", callback_data="lang_en")],
+            [InlineKeyboardButton("⬅️ Назад", callback_data="menu")],
+        ]
+
+        await query.edit_message_text(
+            "🌐 Выбери язык:",
+            reply_markup=InlineKeyboardMarkup(keyboard),
+        )
+
+    elif query.data == "settings":
+        await query.edit_message_text(
+            "⚙️ Настройки\n\n"
+            "Здесь позже появятся настройки профиля, языка и уведомлений."
+        )
+
+    elif query.data in ["exam", "training", "test"]:
+        await query.edit_message_text(
+            "🚧 Этот раздел сейчас разрабатывается.\n\n"
+            "Следующим этапом подключим реальные задания, тесты и ИИ."
+        )
+
+    elif query.data.startswith("lang_"):
+        await query.edit_message_text(
+            "✅ Язык сохранён.\n\n"
+            "Возвращаемся в главное меню:",
+            reply_markup=main_menu(),
+        )
+
+
+async def message(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text(
+        "Я получил твоё сообщение 👍\n\n"
+        "ИИ пока не подключён. Следующим этапом подключим AI-модель, "
+        "чтобы я мог отвечать на вопросы, объяснять темы и решать задания."
+    )
+
+
+def run():
+    if not BOT_TOKEN:
+        raise RuntimeError("BOT_TOKEN не найден")
+
+    app = Application.builder().token(BOT_TOKEN).build()
+
+    app.add_handler(CommandHandler("start", start))
+    app.add_handler(CallbackQueryHandler(button))
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, message))
+
+    print("ExamAI запущен!")
+    app.run_polling()
+
+
+if __name__ == "__main__":
+    run()
