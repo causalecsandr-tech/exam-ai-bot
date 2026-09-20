@@ -1,4 +1,7 @@
 import os
+import threading
+from http.server import BaseHTTPRequestHandler, HTTPServer
+
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (
     Application,
@@ -8,7 +11,17 @@ from telegram.ext import (
     ContextTypes,
     filters,
 )
+class HealthHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write(b"ExamAI is running")
 
+
+def start_web_server():
+    port = int(os.environ.get("PORT", "10000"))
+    server = HTTPServer(("0.0.0.0", port), HealthHandler)
+    server.serve_forever()
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 
 
@@ -167,8 +180,10 @@ def run():
     app.add_handler(CallbackQueryHandler(button))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, message))
 
-    print("ExamAI запущен!")
-    app.run_polling()
+threading.Thread(target=start_web_server, daemon=True).start()
+
+print("ExamAI запущен!")
+app.run_polling()
 
 
 if __name__ == "__main__":
