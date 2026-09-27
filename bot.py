@@ -180,10 +180,10 @@ def run():
     app.add_handler(CallbackQueryHandler(button))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, message))
 
-threading.Thread(target=start_web_server, daemon=True).start()
+    threading.Thread(target=start_web_server, daemon=True).start()
 
-print("ExamAI запущен!")
-app.run_polling()
+    print("ExamAI запущен!")
+    app.run_polling()
 
 
 if __name__ == "__main__":
