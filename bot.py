@@ -1,4 +1,5 @@
 import os
+from openai import OpenAI
 import threading
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
